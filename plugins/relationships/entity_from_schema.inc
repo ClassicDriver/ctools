@@ -58,11 +58,13 @@ function ctools_entity_from_schema_get_children($parent_plugin, $parent) {
               $plugin_id = $parent . ':' . $name;
               $plugin = $parent_plugin;
 
-              $plugin['title'] = t('@to_entity from @from_entity (on @base_table.@relationship)', $replacements);
+              //$plugin['title'] = t('@to_entity from @from_entity (on @base_table.@relationship)', $replacements);
+              $plugin['title'] = $to_entity_info['label'] . ' from ' . $from_entity_info['label'] . ' (on ' . $table . ' .' . $relationship .')';
               $plugin['keyword'] = $to_entity;
               $plugin['context name'] = $name;
               $plugin['name'] = $plugin_id;
-              $plugin['description'] = t('Builds a relationship from a @from_entity to a @to_entity using the @base_table.@relationship field.', $replacements);
+              //$plugin['description'] = t('Builds a relationship from a @from_entity to a @to_entity using the @base_table.@relationship field.', $replacements);
+              $plugin['description'] = 'Builds a relationship from a ' . $from_entity_info['label'] .' to a ' . $to_entity_info['label'] .' using the ' . $table . '.' . $relationship .' field.';
 
               $plugin['required context'] = new ctools_context_required($from_entity_info['label'], $from_entity);
 
@@ -77,11 +79,13 @@ function ctools_entity_from_schema_get_children($parent_plugin, $parent) {
               $plugin_id = $parent . ':' . $name;
               $plugin = $parent_plugin;
 
-              $plugin['title'] = t('@from_entity from @to_entity (on @base_table.@relationship)', $replacements);
+              //$plugin['title'] = t('@from_entity from @to_entity (on @base_table.@relationship)', $replacements);
+              $plugin['title'] = $from_entity_info['label'] . ' from '. $to_entity_info['label'] .' (on ' . $table . ' .' . $relationship .')';
               $plugin['keyword'] = $to_entity;
               $plugin['context name'] = $name;
               $plugin['name'] = $plugin_id;
-              $plugin['description'] = t('Builds a relationship from a @to_entity to a @from_entity using the @base_table.@relationship field.', $replacements);
+              //$plugin['description'] = t('Builds a relationship from a @to_entity to a @from_entity using the @base_table.@relationship field.', $replacements);
+              $plugin['description'] = 'Builds a relationship from a ' . $to_entity_info['label'] . ' to a ' . $from_entity_info['label'] . ' using the ' . $table . '.' . $relationship .' field.';
 
               $plugin['required context'] = new ctools_context_required($to_entity_info['label'], $to_entity);
 
