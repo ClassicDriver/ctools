@@ -41,7 +41,8 @@ function ctools_context_entity_get_children($plugin, $parent) {
     $child_plugin['keyword'] = $entity_type;
     $child_plugin['context name'] = $entity_type;
     $child_plugin['name'] = $parent . ':' . $entity_type;
-    $child_plugin['description'] = t('Creates @entity context from an entity ID.', array('@entity' => $entity_type));
+    //$child_plugin['description'] = t('Creates @entity context from an entity ID.', array('@entity' => $entity_type));
+    $child_plugin['description'] = 'Creates ' . $entity_type . ' context from an entity ID.';
     $child_plugin_id = $parent . ':' . $entity_type;
     drupal_alter('ctools_entity_context', $child_plugin, $entity, $child_plugin_id);
     $plugins[$child_plugin_id] = $child_plugin;

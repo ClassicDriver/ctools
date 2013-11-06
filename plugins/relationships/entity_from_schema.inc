@@ -26,9 +26,15 @@ function ctools_entity_from_schema_get_children($parent_plugin, $parent) {
   $entities = entity_get_info();
   $plugins = array();
 
+  // @todo: even bigger improvement, to cache this entirerly? It will need more
+  // testing.
+  $schemas = ctools_entity_from_schema_get_tables_with_foreign();
   foreach (module_implements('entity_info') as $module) {
-    module_load_install($module);
-    $schemas = drupal_get_schema();
+    // This is a huge performance impact. drupal_get_schema() uses lots of
+    // memory to unserialize the schema from cache. We use a much lighter cache
+    // for this, see ctools_entity_from_schema_get_tables_with_foreign().
+    //module_load_install($module);
+    //$schemas = drupal_get_schema();
 
     foreach ($entities as $from_entity => $from_entity_info) {
       if (empty($from_entity_info['base table'])) {
@@ -38,10 +44,10 @@ function ctools_entity_from_schema_get_children($parent_plugin, $parent) {
       $table = $from_entity_info['base table'];
       if (isset($schemas[$table]['foreign keys'])) {
         foreach ($schemas[$table]['foreign keys'] as $relationship => $info) {
+          if (empty($info['table'])) {
+            continue;
+          }
           foreach ($entities as $to_entity => $to_entity_info) {
-            if (empty($info['table'])) {
-              continue;
-            }
 
             if (isset($to_entity_info['base table']) && $info['table'] == $to_entity_info['base table'] && in_array($to_entity_info['entity keys']['id'], $info['columns'])) {
               $this_col = ctools_entity_from_schema_columns_filter($info['columns'], $to_entity_info['entity keys']['id']);
@@ -102,6 +108,29 @@ function ctools_entity_from_schema_get_children($parent_plugin, $parent) {
   }
   drupal_alter('ctools_entity_contexts', $plugins);
   return $plugins;
+}
+
+
+/**
+ * Helper function for the ctools_entity_from_schema_get_children() to improve
+ * performance and not get the full schema all the time when we need just the
+ * tables with foreign keys.
+ */
+function ctools_entity_from_schema_get_tables_with_foreign() {
+  if ($cached = cache_get('schema_tables_with_foreign')) {
+    $tables = $cached->data;
+  }
+  else {
+    $schema = drupal_get_schema();
+    $tables = array();
+    foreach ($schema as $table => $info) {
+      if (!empty($info['foreign keys'])) {
+        $tables[$table]['foreign keys'] = $info['foreign keys'];
+      }
+    }
+    cache_set('schema_tables_with_foreign', $tables);
+  }
+  return $tables;
 }
 
 function ctools_entity_from_schema_columns_filter($columns, $value) {
