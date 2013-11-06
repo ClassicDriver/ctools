@@ -37,7 +37,8 @@ function ctools_entity_from_field_get_children($parent_plugin, $parent) {
   $context_types = array();
 
   // Get the schema information for every field.
-  $fields_info = field_info_fields();
+  //$fields_info = field_info_fields();
+  $fields_info = ctools_entity_from_field_get_children_fields_info();
   foreach ($fields_info as $field_name => $field) {
     foreach ($field['bundles'] as $from_entity => $bundles) {
       foreach ($bundles as $bundle) {
@@ -45,7 +46,8 @@ function ctools_entity_from_field_get_children($parent_plugin, $parent) {
         // module that declared a node's content type, is now disabled), but the
         // field instance is still shown.
         if (!empty($entities[$from_entity]['bundles'][$bundle])) {
-          $foreign_keys = ctools_field_foreign_keys($field_name);
+          //$foreign_keys = ctools_field_foreign_keys($field_name);
+          $foreign_keys = $fields_info[$field_name]['foreign keys'];
 
           foreach ($foreign_keys as $key => $info) {
             if (isset($info['table'])) {
@@ -72,13 +74,16 @@ function ctools_entity_from_field_get_children($parent_plugin, $parent) {
                       '@to_entity' => $to_entity_info['label'],
                       '@from_entity' => $from_entity_info['label'],
                       '@field_name' => $field_name,
-                      '@field_label' => ctools_field_label($field_name),
+                      //'@field_label' => ctools_field_label($field_name),
+                      '@field_label' => $field_name, // ctools_field_label() calls are pretty expensive in terms of memory.
                     );
-                    $plugin['title'] = t('@to_entity from @from_entity (on @from_entity: @field_label [@field_name])', $replacements);
+                    //$plugin['title'] = t('@to_entity from @from_entity (on @from_entity: @field_label [@field_name])', $replacements);
+                    $plugin['title'] = $to_entity_info['label'] . ' from ' . $from_entity_info['label'] .' (on ' . $from_entity_info['label'] . ': '. $field_name . '[' . $field_name . '])';
                     $plugin['keyword'] = $to_entity;
                     $plugin['context name'] = $name;
                     $plugin['name'] = $plugin_id;
-                    $plugin['description'] = t('Creates a @to_entity context from @from_entity using the @field_name field on @from_entity.', $replacements);
+                    //$plugin['description'] = t('Creates a @to_entity context from @from_entity using the @field_name field on @from_entity.', $replacements);
+                    $plugin['description'] = 'Creates a ' . $to_entity_info['label'] . ' context from ' . $from_entity_info['label'] . ' using the ' . $field_name . ' field on ' . $from_entity_info['label'] . '.';
                     $plugin['from entity'] = $from_entity;
                     $plugin['to entity'] = $to_entity;
                     $plugin['field name'] = $field_name;
@@ -148,6 +153,26 @@ function ctools_entity_from_field_get_children($parent_plugin, $parent) {
 
   $cache[$cid] = $plugins;
   return $plugins;
+}
+
+/**
+ * Helper function for ctools_entity_from_field_get_children to avoid calling
+ * the field_info_fields() function.
+ */
+function ctools_entity_from_field_get_children_fields_info() {
+  if ($cached = cache_get('ctools_entity_from_field_get_children_fields_info')) {
+    $fields_info = $cached->data;
+  }
+  else {
+    $full_info = field_info_fields();
+    $fields_info = array();
+    foreach ($full_info as $field_name => $field) {
+      $fields_info[$field_name]['bundles'] = $field['bundles'];
+      $fields_info[$field_name]['foreign keys'] = ctools_field_foreign_keys($field_name);
+    }
+    cache_set('ctools_entity_from_field_get_children_fields_info', $fields_info);
+  }
+  return $fields_info;
 }
 
 /**
