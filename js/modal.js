@@ -47,7 +47,8 @@
       },
       modalOptions: {
         opacity: .55,
-        background: '#fff'
+        background: '#fff',
+        position: 'absolute'
       }
     };
 
@@ -352,7 +353,6 @@
 
     // Build our base attributes and allow them to be overriden
     css = jQuery.extend({
-      position: 'absolute',
       left: '0px',
       margin: '0px',
       background: '#000',
@@ -386,7 +386,7 @@
     if( docHeight < winHeight ) docHeight = winHeight;
 
     // Create our divs
-    $('body').append('<div id="modalBackdrop" style="z-index: 1000; display: none;"></div><div id="modalContent" style="z-index: 1001; position: absolute;">' + $(content).html() + '</div>');
+    $('body').append('<div id="modalBackdrop" style="z-index: 1000; display: none;"></div><div id="modalContent" style="z-index: 1001;">' + $(content).html() + '</div>');
 
     // Keyboard and focus event handler ensures focus stays on modal elements only
     modalEventHandler = function( event ) {
@@ -416,8 +416,11 @@
     $('body').bind( 'keypress', modalEventHandler );
 
     // Create our content div, get the dimensions, and hide it
-    var modalContent = $('#modalContent').css('top','-1000px');
-    var mdcTop = wt + ( winHeight / 2 ) - (  modalContent.outerHeight() / 2);
+    var modalContent = $('#modalContent').css('top','-1000px').css('position', css.position);
+    var mdcTop = ( winHeight / 2 ) - (  modalContent.outerHeight() / 2);
+    if (css.position == 'absolute') {
+      mdcTop += wt;
+    }
     var mdcLeft = ( winWidth / 2 ) - ( modalContent.outerWidth() / 2);
     $('#modalBackdrop').css(css).css('top', 0).css('height', docHeight + 'px').css('width', docWidth + 'px').show();
     modalContent.css({top: mdcTop + 'px', left: mdcLeft + 'px'}).hide()[animation](speed);
