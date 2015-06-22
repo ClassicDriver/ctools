@@ -89,9 +89,9 @@ function page_manager_node_view_page($node) {
   drupal_set_title($node->title);
   $uri = entity_uri('node', $node);
   // Set the node path as the canonical URL to prevent duplicate content.
-  drupal_add_html_head_link(array('rel' => 'canonical', 'href' => url($uri['path'], $uri['options'])), TRUE);
+  drupal_add_html_head_link(array('rel' => 'canonical', 'href' => $base_url . url($uri['path'], $uri['options'])), TRUE);
   // Set the non-aliased path as a default shortlink.
-  drupal_add_html_head_link(array('rel' => 'shortlink', 'href' => url($uri['path'], array_merge($uri['options'], array('alias' => TRUE)))), TRUE);
+  drupal_add_html_head_link(array('rel' => 'shortlink', 'href' => $base_url . url($uri['path'], array_merge($uri['options'], array('alias' => TRUE)))), TRUE);
   $contexts = ctools_context_handler_get_task_contexts($task, '', array($node));
 
   $output = ctools_context_handler_render($task, '', $contexts, array($node->nid));
