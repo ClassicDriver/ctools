@@ -78,6 +78,7 @@ function page_manager_node_view_menu_alter(&$items, $task) {
  * node view, which is node_page_view().
  */
 function page_manager_node_view_page($node) {
+  global $base_url;
   // Load my task plugin
   $task = page_manager_get_task('node_view');
 
