@@ -78,12 +78,21 @@ function page_manager_node_view_menu_alter(&$items, $task) {
  * node view, which is node_page_view().
  */
 function page_manager_node_view_page($node) {
+  global $base_url;
   // Load my task plugin
   $task = page_manager_get_task('node_view');
 
   // Load the node into a context.
   ctools_include('context');
   ctools_include('context-task-handler');
+  $uri = entity_uri('node', $node);
+  if(isset($uri)) {
+     // Set the node path as the canonical URL to prevent duplicate content.
+     drupal_add_html_head_link(array('rel' => 'canonical', 'href' => $base_url . url($uri['path'], $uri['options'])), TRUE);
+     // Set the non-aliased path as a default shortlink.
+    drupal_add_html_head_link(array('rel' => 'shortlink', 'href' => $base_url . url($uri['path'], array_merge($uri['options'], array('alias' => TRUE)))), TRUE);
+  }
+
 
   // Load all contexts.
   $contexts = ctools_context_handler_get_task_contexts($task, '', array($node));
