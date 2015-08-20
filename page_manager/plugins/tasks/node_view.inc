@@ -86,6 +86,11 @@ function page_manager_node_view_page($node) {
   ctools_include('context');
   ctools_include('context-task-handler');
 
+  $uri = entity_uri('node', $node);
+  if(isset($uri)) {
+    drupal_add_html_head_link(array('rel' => 'canonical', 'href' => $base_url . url($uri['path'], $uri['options'])), TRUE);
+    drupal_add_html_head_link(array('rel' => 'shortlink', 'href' => $base_url . url($uri['path'], array_merge($uri['options'], array('alias' => TRUE)))), TRUE);
+  }
   // We need to mimic Drupal's behavior of setting the node title here.
   drupal_set_title($node->title);
   $uri = entity_uri('node', $node);
